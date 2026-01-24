@@ -28,20 +28,14 @@ class TrainingVM: ObservableObject {
     
     func stop() {
          trainingTimer.stop()
-         if let timer=timer {
-             //stop timer
-             timer.invalidate()
-             self.timer=nil
-         }
+        timer?.invalidate()
+        timer = nil
      }
     
     func reset() {
         trainingSequence.reset()
         trainingTimer.stop()
-        if let timer=timer {
-            //stop timer
-            timer.invalidate()
-            self.timer=nil
-        }
+        timer?.invalidate()
+        timer = nil
     }
 }
