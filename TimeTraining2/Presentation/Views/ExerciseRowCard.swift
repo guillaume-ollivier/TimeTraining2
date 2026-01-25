@@ -41,6 +41,7 @@ struct ExerciseRowCard: View {
             Image(systemName: "chevron.right")
                 .font(.footnote.bold())
                 .foregroundStyle(.tertiary)
+             
         }
         .padding()
         .background(

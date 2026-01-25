@@ -10,36 +10,61 @@ import SwiftUI
 struct ContentView: View {
     @State private var exercices: [ExerciseSequence] = ExerciseStorage.load()
     @State private var isLoaded = false
+    @Environment(
+        \.editMode
+    ) private var editMode // Pour surveiller l'état d'édition
 
     var body: some View {
         NavigationStack {
-            ScrollView { // On remplace List par ScrollView pour plus de liberté
-                LazyVStack(spacing: 16) {
-                    ForEach($exercices) { $exercise in
+            List {
+                ForEach($exercices) { $exercise in
+                    ZStack {
+                        // Le déclencheur invisible qui prend toute la place
                         NavigationLink(destination:
-                            TrainingView(
-                                trainingModel: TrainingVM(trainingSequence: TrainingSequence(exerciseSequence: exercise)),
-                                exerciseSource: $exercise
-                            )
+                                        TrainingView(
+                                            trainingModel: TrainingVM(
+                                                trainingSequence: TrainingSequence(
+                                                    exerciseSequence: exercise
+                                                )
+                                            ),
+                                            exerciseSource: $exercise
+                                        )
                         ) {
-                            ExerciseRowCard(exercise: exercise)
+                            EmptyView()
                         }
-                        .buttonStyle(PlainButtonStyle()) // Enlève le style bleu par défaut
-                        .contextMenu { // Optionnel : menu au appui long
-                            Button(role: .destructive) {
-                                if let index = exercices.firstIndex(where: { $0.id == exercise.id }) {
-                                    exercices.remove(at: index)
-                                }
-                            } label: {
-                                Label("Supprimer", systemImage: "trash")
-                            }
-                        }
+                        .buttonStyle(.plain)
+                        .opacity(0) // On cache absolument tout l'élément natif
+                            
+                        // Ta carte personnalisée (l'UI visible)
+                        ExerciseRowCard(exercise: exercise)
+                        // On désactive l'interaction sur la carte pour que
+                        // le clic passe à travers vers le NavigationLink
+                            .allowsHitTesting(false)
                     }
-                    .onDelete(perform: deleteExercise) // Toujours possible si on est dans une List, sinon gérer manuellement
+                    // Désactive le lien si on est en train d'éditer
+                    .disabled(editMode?.wrappedValue.isEditing ?? false)
+                    .listRowSeparator(.hidden) // Cache les lignes
+                    .listRowBackground(
+                        Color.clear
+                    ) // Fond transparent pour voir le fond global
+                    .listRowInsets(
+                        EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16)
+                    )
+                    .contextMenu {
+                        Button(role: .destructive) {
+                            if let index = exercices.firstIndex(
+                                where: { $0.id == exercise.id
+                                }) {
+                                exercices.remove(at: index)
+                            }
+                        } label: { Label("Supprimer", systemImage: "trash") }
+                    }
                 }
-                .padding()
+                .onDelete(perform: deleteExercise)
+                .onMove(perform: moveExercise)
             }
-            .background(Color(.systemGroupedBackground))
+            .listStyle(.plain) // Enlève le style par défaut
+            .background(Color(UIColor.systemGroupedBackground))
             .navigationTitle("Mes Séances")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) { EditButton() }
@@ -58,11 +83,12 @@ struct ContentView: View {
                 isLoaded = true
             }
         }
-        .onChange(of: exercices) {
-            if isLoaded { ExerciseStorage.save(exercices) }
+        .onChange(of: exercices) { oldVal, newVal in
+            if isLoaded { ExerciseStorage.save(newVal) }
         }
     }
 }
+
 extension ContentView {
     func addExercise() {
         let newExercise = ExerciseSequence(

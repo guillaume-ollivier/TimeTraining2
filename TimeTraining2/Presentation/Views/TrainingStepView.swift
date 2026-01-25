@@ -20,7 +20,7 @@ struct TrainingStepView: View {
             TimeProgressView(elapseTime: step.elapseTime,
                              remainTime: step.remainTime,
                              progressRate: step.progressRate)
-            .frame(height: 50)
+            .frame(height: 60)
         }
                 .padding()
                 .background(

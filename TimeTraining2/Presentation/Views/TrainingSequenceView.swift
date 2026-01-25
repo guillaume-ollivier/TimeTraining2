@@ -16,7 +16,7 @@ struct TrainingSequenceView: View {
             VStack(spacing: 12) {
                 VStack(spacing: 4) {
                     Text(sequence.label)
-                        .font(.title2.bold())
+                        .font(.title).bold()
                     
                     Text("Cycle \(sequence.completedIteration) / \(sequence.totalIteration)")
                         .font(.subheadline)
@@ -28,7 +28,7 @@ struct TrainingSequenceView: View {
                     remainTime: sequence.remainTime,
                     progressRate: sequence.progressRate
                 )
-                .frame(height: 40)
+                .frame(height: 70)
             }
             .padding()
             .background(Color(UIColor.systemBackground))
