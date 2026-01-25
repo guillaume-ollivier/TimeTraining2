@@ -37,10 +37,16 @@ struct ContentView: View {
                 List {
                     ForEach($exercices) { $exercise in
                         NavigationLink {
-                            ExerciseView(sequence: $exercise)
-                        } label: {
-                            Text(exercise.label)
-                        }
+                                // Changement : On va directement à l'entraînement
+                                TrainingView(
+                                    trainingModel: TrainingVM(
+                                        trainingSequence: TrainingSequence(exerciseSequence: exercise)
+                                    ),
+                                    exerciseSource: $exercise // On passe le binding pour pouvoir modifier plus tard
+                                )
+                            } label: {
+                                Text(exercise.label)
+                            }
                     }
                     .onDelete(perform: deleteExercise)
                     .onMove(perform: moveExercise)

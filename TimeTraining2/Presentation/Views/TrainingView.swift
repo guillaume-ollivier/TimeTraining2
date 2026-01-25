@@ -8,33 +8,52 @@
 import SwiftUI
 
 struct TrainingView: View {
-    @StateObject var trainingModel:TrainingVM
-    
+    @StateObject var trainingModel: TrainingVM
+    @Binding var exerciseSource: ExerciseSequence // Reçu de ContentView
+    @State private var isShowingEdit = false // Contrôle la modale
+
     var body: some View {
         VStack {
             TrainingSequenceView(sequence: trainingModel.trainingSequence)
             Spacer()
             HStack {
-                Button("RESET") {
-                    trainingModel.reset()
+                Button("RESET") { trainingModel.reset() }
+                Button("START") { trainingModel.start() }
+            }
+        }
+        .navigationTitle("Entraînement")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button("Modifier") {
+                    isShowingEdit = true
                 }
-                Button("START") {
-                    trainingModel.start()
-                }
-
+            }
+        }
+        // Ouverture de la vue de modification en superposition
+        .sheet(isPresented: $isShowingEdit) {
+            NavigationStack {
+                ExerciseView(sequence: $exerciseSource)
+                    .toolbar {
+                        Button("Fermer") { isShowingEdit = false }
+                    }
             }
         }
     }
 }
 
 #Preview {
+    @Previewable @State var sequence = ExerciseSequence(
+        label: "ExerciseSequenceView",
+        steps: [
+            ExerciseStep(title: "working", duration: 5)
+        ],
+        totalIteration: 2
+    )
     TrainingView(
         trainingModel:TrainingVM(
             trainingSequence:TrainingSequence(
-                exerciseSequence: ExerciseSequence(
-                    label: "Exo",
-                    steps: [
-                        ExerciseStep(title: "", duration: 3),
-                        ExerciseStep(title: "", duration: 2)],
-                    totalIteration: 3))))
+                exerciseSequence: sequence)
+        ),
+        exerciseSource: $sequence
+        )
 }
