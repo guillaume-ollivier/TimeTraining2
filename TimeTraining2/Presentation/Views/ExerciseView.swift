@@ -17,13 +17,7 @@ struct ExerciseView: View {
             ExerciseSequenceView(sequence: $sequence)
             Spacer()
             NavigationLink {
-                TrainingView(
-                    trainingModel: TrainingVM(
-                        trainingSequence: TrainingSequence(
-                            exerciseSequence: sequence
-                        )
-                    )
-                )
+                TrainingView(exercise: $sequence)
             } label: {
                 Text("Aller à la troisième vue")
                     .padding()
@@ -32,7 +26,6 @@ struct ExerciseView: View {
                     .cornerRadius(8)
             }
         }
-        .navigationTitle(sequence.label)
     }
 }
 

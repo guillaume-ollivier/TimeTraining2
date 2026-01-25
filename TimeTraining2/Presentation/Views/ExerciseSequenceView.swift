@@ -10,13 +10,40 @@ import SwiftUI
 struct ExerciseSequenceView: View {
     @Binding var sequence: ExerciseSequence
     
+    /// États locaux pour découpler la saisie de la source de vérité
+    @State private var localLabel: String
+    @State private var localTotalIteration: Int
+    
+    init(sequence: Binding<ExerciseSequence>) {
+        self._sequence = sequence
+        self._localLabel = State(initialValue: sequence.wrappedValue.label)
+        self._localTotalIteration = State(initialValue: sequence.wrappedValue.totalIteration)
+    }
+    
     var body: some View {
         VStack {
-            TextField("Titre", text: $sequence.label)
-            Text("Durée totale : \(HMSTime(from:sequence.totalDuration).toString())")
-            Stepper("Répétition : \(sequence.totalIteration)",
-                    value: $sequence.totalIteration,
+            /// --- Label ---
+            TextField("Titre", text: $localLabel)
+                .onChange(of: localLabel) { oldValue, newValue in
+                    sequence.label = newValue
+                }
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding(.horizontal)
+            
+            /// --- Durée totale ---
+            Text("Durée totale : \(HMSTime(from: sequence.totalDuration).toString())")
+                .padding(.horizontal)
+
+            /// --- Total Iteration ---
+            Stepper("Répétition : \(localTotalIteration)",
+                    value: $localTotalIteration,
                     in: 0...99)
+                .onChange(of: localTotalIteration) { oldValue, newValue in
+                    sequence.totalIteration = newValue
+                }
+                .padding(.horizontal)
+            
+            /// --- Liste des étapes ---
             List {
                 ForEach($sequence.steps) { $step in
                     ExerciseStepView(
@@ -28,7 +55,20 @@ struct ExerciseSequenceView: View {
                 .onMove(perform: moveStep)
             }
         }
-        .navigationTitle("Exercices")
+        .onAppear {
+            // Resynchronisation si la source a changé pendant la navigation
+            localTotalIteration = sequence.totalIteration
+            localLabel = sequence.label
+        }
+        .onChange(of: sequence.totalIteration) { oldValue, newValue in
+            // Resynchronisation si la source change ailleurs (ex: TrainingView)
+            localTotalIteration = newValue
+        }
+        .onChange(of: sequence.label) { oldValue, newValue in
+            // Resynchronisation si la source change ailleurs (ex: TrainingView)
+            localLabel = newValue
+        }
+        .navigationTitle("Modification")
         .navigationBarItems(
             leading: EditButton(),
             trailing: Button(action: addStep) {

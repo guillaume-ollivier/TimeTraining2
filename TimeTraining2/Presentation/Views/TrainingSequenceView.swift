@@ -12,7 +12,6 @@ struct TrainingSequenceView: View {
     
     var body: some View {
         VStack {
-            Text(sequence.label)
             HStack {
                 Spacer()
                 Text("\(sequence.completedIteration) / \(sequence.totalIteration)")

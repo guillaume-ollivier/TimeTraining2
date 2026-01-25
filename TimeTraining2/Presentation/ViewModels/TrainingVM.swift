@@ -9,22 +9,27 @@ import Foundation
 internal import Combine
 
 class TrainingVM: ObservableObject {
-    @Published var trainingSequence:TrainingSequence
+    @Published var trainingSequence:TrainingSequence?
     
     let trainingTimer = TrainingTimer()
     var timer:Timer?
 
-    init(trainingSequence: TrainingSequence) {
-        self.trainingSequence = trainingSequence
+    
+    func updateExercise(execise: ExerciseSequence) {
+        let sequenceCompleted = trainingSequence?.sequenceCompleted ?? true
+        let elapseDuration = sequenceCompleted ? (trainingSequence?.totalDuration ?? 0) : trainingSequence!.elapseDuration
+        trainingSequence = TrainingSequence(exerciseSequence: execise)
+        _ = trainingSequence!.addDuration(duration: elapseDuration)
+            
     }
     
     func start() {
         trainingTimer.start()
-        timer=Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
-            _ = self.trainingSequence.addDuration(duration: self.trainingTimer.getElapse())
-            
+        timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+            _ = self.trainingSequence?.addDuration(duration: self.trainingTimer.getElapse())
         }
     }
+   
     
     func stop() {
          trainingTimer.stop()
@@ -33,7 +38,7 @@ class TrainingVM: ObservableObject {
      }
     
     func reset() {
-        trainingSequence.reset()
+        trainingSequence?.reset()
         trainingTimer.stop()
         timer?.invalidate()
         timer = nil

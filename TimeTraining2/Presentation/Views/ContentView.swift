@@ -8,36 +8,19 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var exercices: [ExerciseSequence] =
-        ExerciseStorage.load()
-/*    @State var exercices = [
-        ExerciseSequence(
-            label: "Exo 1",
-            steps: [
-                ExerciseStep(title: "step 1", duration: 5),
-                ExerciseStep(title: "step 2", duration: 5)],
-            totalIteration: 1),
-        ExerciseSequence(
-            label: "Exo 2",
-            steps: [
-                ExerciseStep(title: "step 1", duration: 5),
-                ExerciseStep(title: "step 2", duration: 5)],
-            totalIteration: 2),
-        ExerciseSequence(
-            label: "Exo 3",
-            steps: [
-                ExerciseStep(title: "step 1", duration: 5),
-                ExerciseStep(title: "step 2", duration: 5)],
-            totalIteration: 3)
-    ]*/
+    @State private var exercices: [ExerciseSequence] = ExerciseStorage.load()
+    @State private var selectedExercise: Binding<ExerciseSequence>? = nil
+    @State private var isShowingTraining = false
+
     @State private var isLoaded = false
 
     var body: some View {
             NavigationStack {
                 List {
                     ForEach($exercices) { $exercise in
-                        NavigationLink {
-                            ExerciseView(sequence: $exercise)
+                        Button {
+                            selectedExercise = $exercise
+                            isShowingTraining = true
                         } label: {
                             Text(exercise.label)
                         }
@@ -45,20 +28,29 @@ struct ContentView: View {
                     .onDelete(perform: deleteExercise)
                     .onMove(perform: moveExercise)
                 }
-                .navigationTitle("Exercices")
+                .navigationBarTitle("Exercices")
+                .navigationBarTitleDisplayMode(NavigationBarItem.TitleDisplayMode.inline)
                 .navigationBarItems(
                     leading: EditButton(),
                     trailing: Button(action: addExercise) {
                         Image(systemName: "plus")
                     }
                 )
+                // Navigation vers TrainingView avec Binding
+                .navigationDestination(isPresented: $isShowingTraining) {
+                    if let selectedExercise = selectedExercise {
+                        TrainingView(exercise: selectedExercise)
+                    }
+                }
             }.onAppear {
+                print("ContentView.onAppear - isLoaded=\(isLoaded)")
                 if !isLoaded {
                     exercices = ExerciseStorage.load()
                     isLoaded = true
                 }
             }
             .onChange(of: exercices) {
+                print("ContentView.onChange - isLoaded=\(isLoaded)")
                 if isLoaded {
                     ExerciseStorage.save(exercices)
                 }

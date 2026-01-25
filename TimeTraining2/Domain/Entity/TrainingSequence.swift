@@ -29,7 +29,7 @@ struct TrainingSequence {
     var sequenceCompleted: Bool {
         return completedIteration >= totalIteration
     }
-
+    
     init(steps: [TrainingStep], completedIteration: Int=0, totalIteration: Int, label: String) {
         let stepsTotalDuration = steps.reduce(0) { partialResult, step in
             return partialResult + Int(step.totalDuration)
