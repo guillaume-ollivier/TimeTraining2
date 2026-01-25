@@ -21,7 +21,6 @@ struct TrainingView: View {
                 Button("START") { trainingModel.start() }
             }
         }
-        .navigationTitle("Entraînement")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button("Modifier") {
@@ -30,7 +29,11 @@ struct TrainingView: View {
             }
         }
         // Ouverture de la vue de modification en superposition
-        .sheet(isPresented: $isShowingEdit) {
+        .sheet(isPresented: $isShowingEdit, onDismiss: {
+            // ACTION LORS DE LA FERMETURE :
+            // On demande au ViewModel de se mettre à jour avec les nouvelles données du Binding
+            trainingModel.refresh(from: exerciseSource)
+        }) {
             NavigationStack {
                 ExerciseView(sequence: $exerciseSource)
                     .toolbar {

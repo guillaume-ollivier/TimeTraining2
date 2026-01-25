@@ -18,6 +18,14 @@ class TrainingVM: ObservableObject {
         self.trainingSequence = trainingSequence
     }
     
+    // Nouvelle fonction pour mettre à jour les données
+    func refresh(from exercise: ExerciseSequence) {
+        // On recrée une nouvelle séquence d'entraînement à partir de l'exercice modifié
+        // tout en gardant l'état actuel si vous le souhaitez,
+        // ou en réinitialisant pour prendre en compte les nouveaux temps.
+        self.trainingSequence = TrainingSequence(exerciseSequence: exercise)
+    }
+
     func start() {
         trainingTimer.start()
         timer=Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in

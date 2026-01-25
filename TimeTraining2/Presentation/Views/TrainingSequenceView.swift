@@ -13,9 +13,11 @@ struct TrainingSequenceView: View {
     var body: some View {
         VStack {
             Text(sequence.label)
+                .font(Font.largeTitle)
             HStack {
                 Spacer()
-                Text("\(sequence.completedIteration) / \(sequence.totalIteration)")
+                Text("cycle \(sequence.completedIteration) / \(sequence.totalIteration)")
+                    .font(.title)
                 Spacer()
             }
             TimeProgressView(elapseTime: sequence.elapseTime,
@@ -29,13 +31,17 @@ struct TrainingSequenceView: View {
 }
 
 #Preview {
+    @Previewable @State var sequence = ExerciseSequence(
+        label: "Exercise",
+        steps: [
+            ExerciseStep(title: "working", duration: 4.0),
+            ExerciseStep(title: "pause", duration: 2.0)
+        ],
+        totalIteration: 3
+    )
+    
     TrainingSequenceView(sequence: TrainingSequence(
-        exerciseSequence: ExerciseSequence(
-            label:"Exercise",
-            steps: [
-                ExerciseStep(title: "working", duration: 4.0),
-                ExerciseStep(title: "pause", duration: 2.0)
-            ], totalIteration: 3),
+        exerciseSequence: sequence,
         completedIteration: 1)
     )
 }
