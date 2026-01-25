@@ -14,6 +14,7 @@ struct TrainingSequence {
     var progressRate: Float
     var totalDuration: Float
     var steps: [TrainingStep]
+    var currentStepId:UUID?
     var completedIteration: Int
     var totalIteration: Int
     var label: String
@@ -42,6 +43,7 @@ struct TrainingSequence {
         self.elapseTime = HMSTime(from: Float(newElapseDuration))
         self.remainTime = HMSTime(from: Float(newRemainDuration))
         self.steps = steps
+        self.currentStepId = nil
 
         self.completedIteration = completedIteration
         self.totalIteration = totalIteration
@@ -65,10 +67,18 @@ struct TrainingSequence {
         }
         var overDuration: Float = duration
         var newElapseDuration:Float = totalDuration/Float(totalIteration) * Float(completedIteration)
+        currentStepId = nil
         for(index) in steps.indices {
             overDuration = steps[index].addDuration(overDuration)
+            if ( overDuration == 0  && currentStepId == nil) {
+                currentStepId = steps[index].id
+            }
             newElapseDuration += steps[index].elapseDuration
         }
+        if(currentStepId == nil) {
+            currentStepId = steps.last?.id
+        }
+        
         let newRemainDuration = totalDuration - newElapseDuration
         if(overDuration > 0 ) {
             if completedIteration + 1 < totalIteration {

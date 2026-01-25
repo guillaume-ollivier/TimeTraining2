@@ -9,17 +9,32 @@ import SwiftUI
 
 struct TrainingStepView: View {
     let step: TrainingStep
-    
+    // Imaginons une variable isActive passée par le parent
+    var isActive: Bool = false
+
     var body: some View {
-        VStack {
-            Text(step.title).font(.title2)
+        VStack(alignment: .leading, spacing: 8) {
+            Text(step.title)
+                .font(.headline)
+                .foregroundColor(isActive ? .primary : .secondary)
             TimeProgressView(elapseTime: step.elapseTime,
                              remainTime: step.remainTime,
                              progressRate: step.progressRate)
             .frame(height: 50)
         }
-    }
-}
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 15)
+                        .fill(Color(UIColor.systemBackground))
+                        .shadow(color: .black.opacity(isActive ? 0.1 : 0), radius: 5, x: 0, y: 5)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 15)
+                        .stroke(isActive ? Color.blue : Color.clear, lineWidth: 2)
+                )
+                .padding(.horizontal)
+            }
+        }
 
 #Preview {
     TrainingStepView(step: TrainingStep(

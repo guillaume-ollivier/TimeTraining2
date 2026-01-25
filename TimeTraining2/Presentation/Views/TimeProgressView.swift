@@ -13,22 +13,26 @@ struct TimeProgressView: View {
     let progressRate: Float
     
     var body: some View {
-        ZStack(alignment: .leading) {
-            GeometryReader { geometry in
+        GeometryReader { geometry in
+            ZStack(alignment: .leading) {
+                // Fond de la barre
+                Capsule().fill(Color.secondary.opacity(0.2))
+                
+                // Barre de progression
                 Capsule()
-                    .fill(.red)
-                    .frame(width: geometry.size.width * (CGFloat)(progressRate),
-                           height: geometry.size.height)
+                    .fill(LinearGradient(colors: [.orange, .red], startPoint: .leading, endPoint: .trailing))
+                    .frame(width: geometry.size.width * CGFloat(progressRate))
+                    .animation(.linear, value: progressRate)
+                
+                HStack {
+                    Text("\(elapseTime.minute):\(elapseTime.second)")
+                    Spacer()
+                    Text("-\(remainTime.minute):\(remainTime.second)")
+                }
+                .font(.system(.subheadline, design: .monospaced).bold())
+                .padding(.horizontal, 15)
+                .foregroundColor(.primary)
             }
-            HStack {
-                Text(elapseTime.minute)
-                Text(":")
-                Text(elapseTime.second)
-                Spacer()
-                Text(remainTime.minute)
-                Text(":")
-                Text(remainTime.second)
-            }.padding(20)
         }
     }
 }

@@ -12,10 +12,21 @@ struct ExerciseStepView: View {
     @Binding var duration: Int
     
     var body: some View {
-        VStack {
-            TextField("Titre", text: $title)
-            DurationPickerView(duration: $duration, stepSecond: 5)
-        }.frame(alignment: .center)
+        VStack(alignment: .leading, spacing: 10) {
+            TextField("Nom de l'étape (ex: Pompe, Repos...)", text: $title)
+                .font(.headline)
+            
+            HStack {
+                Image(systemName: "timer")
+                    .font(.subheadline)
+                    .foregroundStyle(.blue)
+                
+                // Ton DurationPickerView customisé
+                DurationPickerView(duration: $duration, stepSecond: 5)
+                    .labelsHidden() // Si ton picker supporte l'étiquette masquée
+            }
+        }
+        .padding(.vertical, 4)
     }
 }
 

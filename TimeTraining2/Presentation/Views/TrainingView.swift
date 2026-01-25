@@ -16,10 +16,24 @@ struct TrainingView: View {
         VStack {
             TrainingSequenceView(sequence: trainingModel.trainingSequence)
             Spacer()
-            HStack {
-                Button("RESET") { trainingModel.reset() }
-                Button("START") { trainingModel.start() }
+            HStack(spacing: 40) {
+                Button(action: { trainingModel.reset() }) {
+                    Image(systemName: "arrow.counterclockwise")
+                        .font(.title)
+                        .padding()
+                        .background(Circle().fill(.gray.opacity(0.2)))
+                }
+                
+                Button(action: { trainingModel.start() }) {
+                    Text("START")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Capsule().fill(.green))
+                        .foregroundColor(.white)
+                }
             }
+            .padding()
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {

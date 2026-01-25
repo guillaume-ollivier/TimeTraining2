@@ -11,30 +11,58 @@ struct ExerciseSequenceView: View {
     @Binding var sequence: ExerciseSequence
     
     var body: some View {
-        VStack {
-            TextField("Titre", text: $sequence.label)
-            Text("Durée totale : \(HMSTime(from:sequence.totalDuration).toString())")
-            Stepper("Répétition : \(sequence.totalIteration)",
-                    value: $sequence.totalIteration,
-                    in: 0...99)
-            List {
-                ForEach($sequence.steps) { $step in
-                    ExerciseStepView(
-                        title: $step.title,
-                        duration: $step.durationSeconds
-                    )
+        Form {
+            // SECTION 1 : Infos Générales
+            Section(header: Text("Informations Générales")) {
+                HStack {
+                    Image(systemName: "tag")
+                        .foregroundStyle(.blue)
+                    TextField("Nom de la séance", text: $sequence.label)
                 }
-                .onDelete(perform: deleteStep)
-                .onMove(perform: moveStep)
+                
+                Stepper(value: $sequence.totalIteration, in: 1...99) {
+                    HStack {
+                        Image(systemName: "arrow.2.squarepath")
+                            .foregroundStyle(.orange)
+                        Text("Répétitions : ")
+                        Text("\(sequence.totalIteration)").bold()
+                    }
+                }
+            }
+            
+            // SECTION 2 : Résumé
+            Section {
+                HStack {
+                    Label("Durée totale", systemImage: "clock.fill")
+                    Spacer()
+                    Text(HMSTime(from: sequence.totalDuration).toString())
+                        .fontWeight(.semibold)
+                        .monospacedDigit()
+                }
+                .foregroundStyle(.secondary)
+            }
+            
+            // SECTION 3 : Liste des Étapes
+            Section(header: HStack {
+                Text("Étapes de l'exercice")
+                Spacer()
+                Button(action: addStep) {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title3)
+                }
+            }) {
+                List {
+                    ForEach($sequence.steps) { $step in
+                        ExerciseStepView(title: $step.title, duration: $step.durationSeconds)
+                    }
+                    .onDelete(perform: deleteStep)
+                    .onMove(perform: moveStep)
+                }
             }
         }
-        .navigationTitle("Exercices")
-        .navigationBarItems(
-            leading: EditButton(),
-            trailing: Button(action: addStep) {
-                Image(systemName: "plus")
-            }
-        )
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) { EditButton() }
+        }
     }
 }
     
