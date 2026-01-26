@@ -7,6 +7,7 @@
 
 import Foundation
 internal import Combine
+import UIKit
 
 class TrainingVM: ObservableObject {
     @Published var trainingSequence:TrainingSequence
@@ -27,20 +28,34 @@ class TrainingVM: ObservableObject {
     }
 
     func start() {
+        UIApplication.shared.isIdleTimerDisabled = true
         trainingTimer.start()
         timer=Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
-            _ = self.trainingSequence.addDuration(duration: self.trainingTimer.getElapse())
+            let status = self.trainingSequence.addDuration(duration: self.trainingTimer.getElapse())
+            switch status.event {
+            case .NONE:
+                break
+            default:
+                print("Event: \(status.event) at duration: \(status.duration) seconds")
+            }
+
+
+            if(self.trainingSequence.sequenceCompleted) {
+                UIApplication.shared.isIdleTimerDisabled = false
+            }
             
         }
     }
     
     func stop() {
-         trainingTimer.stop()
+        UIApplication.shared.isIdleTimerDisabled = false
+        trainingTimer.stop()
         timer?.invalidate()
         timer = nil
      }
     
     func reset() {
+        UIApplication.shared.isIdleTimerDisabled = false
         trainingSequence.reset()
         trainingTimer.stop()
         timer?.invalidate()

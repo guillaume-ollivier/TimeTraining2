@@ -14,6 +14,8 @@ struct TrainingStep {
     var progressRate: Float
     var totalDuration: Float
     let title:String
+    let intervalEvent:Float = 10.0 // seconds
+    let nbLastSecond:Int = 2 // seconds
 
     var elapseDuration: Float {
         return totalDuration * progressRate
@@ -73,21 +75,38 @@ struct TrainingStep {
         self.title = title
     }
 
-    mutating func addDuration(_ duration: Float) -> Float {
-        guard duration >= 0 else { return 0 }
-        if remainDuration > duration {
-            let newRemainDuration = remainDuration - duration
+    mutating func addDuration(_ duration: Float) -> TimeStatus {
+        guard duration >= 0 else { return TimeStatus(duration: 0, event: .NONE) }
+        let oldRemainDuration = remainDuration
+        if (oldRemainDuration == 0) {
+            /// Etape déjà terminée
+            return TimeStatus(duration: duration, event: .NONE)
+        } else if(remainDuration <= duration) {
+            /// Etape se termine
+            let overDuration = duration - oldRemainDuration
+            self.remainTime = HMSTime(from: 0)
+            self.elapseTime = HMSTime(from: self.totalDuration)
+            self.progressRate = 1.0
+            return TimeStatus(duration: overDuration, event: .END_STEP)
+        } else {
+            /// Etape en cours
+            let newRemainDuration = oldRemainDuration - duration
             let newElapseDuration = self.totalDuration - newRemainDuration
             self.progressRate = newElapseDuration / self.totalDuration
             self.remainTime = HMSTime(from: newRemainDuration)
             self.elapseTime = HMSTime(from: newElapseDuration)
-            return 0
-        } else {
-            let overDuration = duration - remainDuration
-            self.remainTime = HMSTime(from: 0)
-            self.elapseTime = HMSTime(from: self.totalDuration)
-            self.progressRate = 1.0 
-            return overDuration
+            /// Event computing
+            var event: TimeEvent = .NONE
+            if (Int(newRemainDuration / intervalEvent) != Int(oldRemainDuration / intervalEvent)) {
+                event = .INTERVAL_STEP
+            }
+            
+            let oldSeconds=Int(ceil(oldRemainDuration))
+            let newSeconds=Int(ceil(newRemainDuration))
+            if(newSeconds<Int(intervalEvent) && oldSeconds != newSeconds) {
+                event = .LAST_SECONDS(seconds: newSeconds)
+            }
+            return TimeStatus(duration: 0, event: event)
         }
     }
 

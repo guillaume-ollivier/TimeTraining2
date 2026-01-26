@@ -61,16 +61,25 @@ struct TrainingSequence {
                   label: exerciseSequence.label)
     }
 
-    mutating func addDuration(duration: Float) -> Float {
-        if( duration <= 0 || sequenceCompleted ) {
-            return duration
+    mutating func addDuration(duration: Float) -> TimeStatus {
+        return addDuration(initialStatus: TimeStatus(duration: duration, event: .NONE))
+    }
+
+    mutating func addDuration(initialStatus: TimeStatus) -> TimeStatus {
+        if( initialStatus.duration <= 0 || sequenceCompleted ) {
+            return initialStatus
         }
-        var overDuration: Float = duration
+
+        /// Initialisation avec les précédentes itérations
+        var newStatus = initialStatus
         var newElapseDuration:Float = totalDuration/Float(totalIteration) * Float(completedIteration)
+
+        /// Décompte les étapes
         currentStepId = nil
         for(index) in steps.indices {
-            overDuration = steps[index].addDuration(overDuration)
-            if ( overDuration == 0  && currentStepId == nil) {
+            let stepStatus = steps[index].addDuration(newStatus.duration)
+            newStatus = stepStatus.make(status: newStatus)
+            if ( newStatus.duration == 0  && currentStepId == nil) {
                 currentStepId = steps[index].id
             }
             newElapseDuration += steps[index].elapseDuration
@@ -80,25 +89,30 @@ struct TrainingSequence {
         }
         
         let newRemainDuration = totalDuration - newElapseDuration
-        if(overDuration > 0 ) {
-            if completedIteration + 1 < totalIteration {
-                for(index) in steps.indices {
-                    steps[index].reset()
-                }
-                completedIteration += 1
-                return addDuration(duration: overDuration)
-            } 
-        }
-
         self.progressRate = newElapseDuration / Float(self.totalDuration)
         self.elapseTime = HMSTime(from: Float(newElapseDuration))
         self.remainTime = HMSTime(from: Float(newRemainDuration))
-        if(overDuration>0) {
-            // all completed
-            overDuration = 0
-            completedIteration = totalIteration
+        
+        if(newStatus.duration == 0) {
+            /// Etapes en cours
+ 
+            return newStatus;
+        } else {
+            /// Etapes terminées
+            if completedIteration + 1 < totalIteration {
+                /// Itérations en cours
+                for(index) in steps.indices {
+                    steps[index].reset()
+                }
+                /// Itérations suivantes
+                completedIteration += 1
+                return addDuration(initialStatus: TimeStatus(duration: newStatus.duration, event: .END_SEQUENCE))
+            } else {
+                /// Exercice terminé
+                completedIteration = totalIteration
+                return TimeStatus(duration: 0, event: .END_EXERCISE)
+            }
         }
-        return 0;
     }
 
     mutating func reset() {
