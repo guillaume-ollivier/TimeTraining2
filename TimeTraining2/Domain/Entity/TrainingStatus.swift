@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct TimeStatus {
+struct TrainingStatus {
     let duration: Float
     let event: TimeEvent
 
@@ -16,11 +16,11 @@ struct TimeStatus {
         self.event = event
     }
 
-    func make(status: TimeStatus) -> TimeStatus {
+    func make(status: TrainingStatus) -> TrainingStatus {
         if(status.event.priority > self.event.priority) {
-            return TimeStatus(duration: duration, event: status.event)
+            return TrainingStatus(duration: duration, event: status.event)
         } else {
-            return TimeStatus(duration: duration, event: self.event)
+            return TrainingStatus(duration: duration, event: self.event)
         }
     }
 }

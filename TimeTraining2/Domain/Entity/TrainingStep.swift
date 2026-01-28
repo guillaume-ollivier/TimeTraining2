@@ -12,11 +12,18 @@ struct TrainingStep {
     var elapseTime: HMSTime
     var remainTime: HMSTime
     var progressRate: Float
-    var totalDuration: Float
-    let title:String
     let intervalEvent:Float = 10.0 // seconds
     let nbLastSecond:Int = 2 // seconds
-
+    let exerciseStep:ExerciseStep
+    
+    var title: String {
+        exerciseStep.title
+    }
+    
+    var totalDuration: Float {
+        max(exerciseStep.duration, 0)
+    }
+    
     var elapseDuration: Float {
         return totalDuration * progressRate
     }
@@ -25,6 +32,7 @@ struct TrainingStep {
         return totalDuration - elapseDuration
     }
 
+    /*
     init(elapseTime: HMSTime, remainTime: HMSTime, title:String) {
         self.elapseTime = elapseTime
         self.remainTime = remainTime
@@ -32,17 +40,18 @@ struct TrainingStep {
         self.progressRate = elapseTime.toSeconds() / self.totalDuration
         self.title = title
     }
-
-    init(totalDuration: Float, progressRate: Float, title:String) {
-        let totalDuration = max(totalDuration, 0)  
+*/
+    
+    init(step: ExerciseStep, progressRate: Float) {
         let progressRate = min(max(progressRate, 0), 1)
+        let totalDuration = max(step.duration, 0)
+        self.exerciseStep = step
         self.elapseTime = HMSTime(from: totalDuration * progressRate)
         self.remainTime = HMSTime(from: totalDuration * (1 - progressRate))
-        self.totalDuration = totalDuration
         self.progressRate = progressRate
-        self.title = title
     }
-    
+  
+    /*
     init(elapseDuration: Float, totalDuration: Float, title:String) {
         let totalDuration = max(totalDuration, 0)  
         let elapseDuration = min(max(elapseDuration, 0), totalDuration)
@@ -52,7 +61,8 @@ struct TrainingStep {
         self.progressRate = elapseDuration/totalDuration
         self.title = title
     }
-
+*/
+    /*
     init(remainDuration: Float, totalDuration: Float, title:String) {
         let totalDuration = max(totalDuration, 0)  
         let remainDuration = min(max(remainDuration, 0), totalDuration)
@@ -63,7 +73,8 @@ struct TrainingStep {
         self.progressRate = elapseDuration/totalDuration
         self.title = title
     }
-
+*/
+    /*
     init(elapseDuration: Float, remainDuration: Float, title:String) {
         let elapseDuration = max(elapseDuration, 0)
         let remainDuration = max(remainDuration, 0)
@@ -74,20 +85,20 @@ struct TrainingStep {
         self.progressRate = elapseDuration/totalDuration
         self.title = title
     }
-
-    mutating func addDuration(_ duration: Float) -> TimeStatus {
-        guard duration >= 0 else { return TimeStatus(duration: 0, event: .NONE) }
+*/
+    mutating func addDuration(_ duration: Float) -> TrainingStatus {
+        guard duration >= 0 else { return TrainingStatus(duration: 0, event: .NONE) }
         let oldRemainDuration = remainDuration
         if (oldRemainDuration == 0) {
             /// Etape déjà terminée
-            return TimeStatus(duration: duration, event: .NONE)
+            return TrainingStatus(duration: duration, event: .NONE)
         } else if(remainDuration <= duration) {
             /// Etape se termine
             let overDuration = duration - oldRemainDuration
             self.remainTime = HMSTime(from: 0)
             self.elapseTime = HMSTime(from: self.totalDuration)
             self.progressRate = 1.0
-            return TimeStatus(duration: overDuration, event: .END_STEP)
+            return TrainingStatus(duration: overDuration, event: .END_STEP)
         } else {
             /// Etape en cours
             let newRemainDuration = oldRemainDuration - duration
@@ -106,7 +117,7 @@ struct TrainingStep {
             if(newSeconds<Int(intervalEvent) && oldSeconds != newSeconds) {
                 event = .LAST_SECONDS(seconds: newSeconds)
             }
-            return TimeStatus(duration: 0, event: event)
+            return TrainingStatus(duration: 0, event: event)
         }
     }
 

@@ -38,7 +38,6 @@ struct TrainingStepView: View {
 
 #Preview {
     TrainingStepView(step: TrainingStep(
-        elapseDuration: 3.0,
-        remainDuration: 1.0,
-        title: "titre"))
+        step: ExerciseStep(title: "titre", duration: 4.0),
+        progressRate: 0.75))
 }

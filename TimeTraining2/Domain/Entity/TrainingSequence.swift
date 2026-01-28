@@ -53,7 +53,8 @@ struct TrainingSequence {
 
     init(exerciseSequence: ExerciseSequence, completedIteration: Int=0) {
         let steps = exerciseSequence.steps.map { exerciseStep in
-            TrainingStep(totalDuration: exerciseStep.duration, progressRate: 0, title: exerciseStep.title)
+            TrainingStep(step:exerciseStep,
+                         progressRate: 0)
         }
         self.init(steps: steps,
                   completedIteration: completedIteration,
@@ -61,11 +62,11 @@ struct TrainingSequence {
                   label: exerciseSequence.label)
     }
 
-    mutating func addDuration(duration: Float) -> TimeStatus {
-        return addDuration(initialStatus: TimeStatus(duration: duration, event: .NONE))
+    mutating func addDuration(duration: Float) -> TrainingStatus {
+        return addDuration(initialStatus: TrainingStatus(duration: duration, event: .NONE))
     }
 
-    mutating func addDuration(initialStatus: TimeStatus) -> TimeStatus {
+    mutating func addDuration(initialStatus: TrainingStatus) -> TrainingStatus {
         if( initialStatus.duration <= 0 || sequenceCompleted ) {
             return initialStatus
         }
@@ -106,11 +107,11 @@ struct TrainingSequence {
                 }
                 /// Itérations suivantes
                 completedIteration += 1
-                return addDuration(initialStatus: TimeStatus(duration: newStatus.duration, event: .END_SEQUENCE))
+                return addDuration(initialStatus: TrainingStatus(duration: newStatus.duration, event: .END_SEQUENCE))
             } else {
                 /// Exercice terminé
                 completedIteration = totalIteration
-                return TimeStatus(duration: 0, event: .END_EXERCISE)
+                return TrainingStatus(duration: 0, event: .END_EXERCISE)
             }
         }
     }

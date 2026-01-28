@@ -24,14 +24,34 @@ struct TrainingView: View {
                         .background(Circle().fill(.gray.opacity(0.2)))
                 }
                 
-                Button(action: { trainingModel.start() }) {
-                    Text("START")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Capsule().fill(.green))
-                        .foregroundColor(.white)
-                }
+                // Bouton Dynamique Start / Pause
+                    if trainingModel.isRunning {
+                        // Mode PAUSE
+                        Button(action: { trainingModel.stop() }) {
+                            HStack {
+                                Image(systemName: "pause.fill")
+                                Text("PAUSE")
+                            }
+                            .font(.headline)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Capsule().fill(.orange)) // Orange pour la pause
+                            .foregroundColor(.white)
+                        }
+                    } else {
+                        // Mode START
+                        Button(action: { trainingModel.start() }) {
+                            HStack {
+                                Image(systemName: "play.fill")
+                                Text("START")
+                            }
+                            .font(.headline)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Capsule().fill(.green)) // Vert pour le départ
+                            .foregroundColor(.white)
+                        }
+                    }
             }
             .padding()
         }

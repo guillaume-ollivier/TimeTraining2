@@ -12,8 +12,12 @@ import UIKit
 class TrainingVM: ObservableObject {
     @Published var trainingSequence:TrainingSequence
     
+    var isRunning: Bool {
+        timer != nil
+    }
+    
     let trainingTimer = TrainingTimer()
-    var timer:Timer?
+    @Published var timer:Timer?
 
     init(trainingSequence: TrainingSequence) {
         self.trainingSequence = trainingSequence
@@ -28,12 +32,20 @@ class TrainingVM: ObservableObject {
     }
 
     func start() {
+        guard !isRunning else { return }
+        if(trainingSequence.sequenceCompleted) {
+            reset()
+        }
         UIApplication.shared.isIdleTimerDisabled = true
         trainingTimer.start()
         timer=Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
             let status = self.trainingSequence.addDuration(duration: self.trainingTimer.getElapse())
             switch status.event {
             case .NONE:
+                break
+            case .END_EXERCISE:
+                self.stop()
+                print("Event: \(status.event) at duration: \(status.duration) seconds")
                 break
             default:
                 print("Event: \(status.event) at duration: \(status.duration) seconds")
