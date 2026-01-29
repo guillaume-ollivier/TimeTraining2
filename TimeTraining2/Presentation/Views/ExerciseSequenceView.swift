@@ -35,7 +35,7 @@ struct ExerciseSequenceView: View {
                 HStack {
                     Label("Durée totale", systemImage: "clock.fill")
                     Spacer()
-                    Text(HMSTime(from: sequence.totalDuration).toString())
+                    Text(HMSTime(from: Int(sequence.totalDuration)).toString())
                         .fontWeight(.semibold)
                         .monospacedDigit()
                 }

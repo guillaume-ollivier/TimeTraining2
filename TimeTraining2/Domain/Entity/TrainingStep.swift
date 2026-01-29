@@ -45,9 +45,11 @@ struct TrainingStep {
     init(step: ExerciseStep, progressRate: Float) {
         let progressRate = min(max(progressRate, 0), 1)
         let totalDuration = max(step.duration, 0)
+        let elapseDuration = Int(ceil(totalDuration * progressRate))
+        let remainDuration = Int(totalDuration) - elapseDuration
         self.exerciseStep = step
-        self.elapseTime = HMSTime(from: totalDuration * progressRate)
-        self.remainTime = HMSTime(from: totalDuration * (1 - progressRate))
+        self.elapseTime = HMSTime(from: elapseDuration)
+        self.remainTime = HMSTime(from: remainDuration)
         self.progressRate = progressRate
     }
   
@@ -96,16 +98,18 @@ struct TrainingStep {
             /// Etape se termine
             let overDuration = duration - oldRemainDuration
             self.remainTime = HMSTime(from: 0)
-            self.elapseTime = HMSTime(from: self.totalDuration)
+            self.elapseTime = HMSTime(from: Int(self.totalDuration))
             self.progressRate = 1.0
             return TrainingStatus(duration: overDuration, event: .END_STEP)
         } else {
             /// Etape en cours
             let newRemainDuration = oldRemainDuration - duration
+            let newRemainDurationInt = Int(ceil(newRemainDuration))
             let newElapseDuration = self.totalDuration - newRemainDuration
+            let newElapseDurationInt = Int(self.totalDuration) - newRemainDurationInt
             self.progressRate = newElapseDuration / self.totalDuration
-            self.remainTime = HMSTime(from: newRemainDuration)
-            self.elapseTime = HMSTime(from: newElapseDuration)
+            self.remainTime = HMSTime(from: newRemainDurationInt)
+            self.elapseTime = HMSTime(from: newElapseDurationInt)
             /// Event computing
             var event: TimeEvent = .NONE
             if (Int(newRemainDuration / intervalEvent) != Int(oldRemainDuration / intervalEvent)) {
@@ -124,7 +128,7 @@ struct TrainingStep {
     mutating func reset() {
         self.progressRate = 0.0
         self.elapseTime = HMSTime(from: 0)
-        self.remainTime = HMSTime(from: self.totalDuration)
+        self.remainTime = HMSTime(from: Int(self.totalDuration))
     }
 
 }

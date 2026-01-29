@@ -12,8 +12,8 @@ struct HMSTime {
     let minute: String
     let second: String
 
-    init(from duration: Float) {
-        let totalSeconds = Int(duration)
+    init(from duration: Int) {
+        let totalSeconds = duration
         let hours = totalSeconds / 3600
         let minutes = (totalSeconds % 3600) / 60
         let seconds = totalSeconds % 60
@@ -23,11 +23,11 @@ struct HMSTime {
         self.second = String(format: "%02d", seconds)
     }
 
-    func toSeconds() -> Float {
+    func toSeconds() -> Int {
         let h = Int(hour) ?? 0
         let m = Int(minute) ?? 0
         let s = Int(second) ?? 0
-        return Float(h * 3600 + m * 60 + s)
+        return h * 3600 + m * 60 + s
     }
     
     func toString() -> String {

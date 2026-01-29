@@ -11,13 +11,23 @@ import UIKit
 
 class TrainingVM: ObservableObject {
     @Published var trainingSequence:TrainingSequence
+    @Published var timer:Timer?
+    @Published private var soundBox = SoundBox(isVibration: false, isSound: true, maxLastSecond: 2)
     
     var isRunning: Bool {
         timer != nil
     }
     
+    var isMute: Bool {
+        soundBox.isVibration
+    }
+    
+    func setMute(isMute: Bool) {
+        soundBox.isSound = !isMute
+        soundBox.isVibration = isMute
+    }
+    
     let trainingTimer = TrainingTimer()
-    @Published var timer:Timer?
 
     init(trainingSequence: TrainingSequence) {
         self.trainingSequence = trainingSequence
@@ -55,7 +65,7 @@ class TrainingVM: ObservableObject {
             if(self.trainingSequence.sequenceCompleted) {
                 UIApplication.shared.isIdleTimerDisabled = false
             }
-            
+            self.soundBox.play(event: status.event)
         }
     }
     

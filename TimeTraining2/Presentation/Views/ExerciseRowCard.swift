@@ -30,7 +30,7 @@ struct ExerciseRowCard: View {
                 HStack(spacing: 10) {
                     Label("\(exercise.steps.count) étapes", systemImage: "list.bullet")
                     // On pourrait calculer la durée totale ici
-                    Label("\(HMSTime(from: exercise.totalDuration).toString())", systemImage: "clock")
+                    Label("\(HMSTime(from: Int(exercise.totalDuration)).toString())", systemImage: "clock")
                 }
                 .font(.caption)
                 .foregroundColor(.secondary)

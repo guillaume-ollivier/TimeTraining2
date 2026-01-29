@@ -17,6 +17,18 @@ struct TrainingView: View {
             TrainingSequenceView(sequence: trainingModel.trainingSequence)
             Spacer()
             HStack(spacing: 40) {
+                Button(action: {
+                        trainingModel.setMute(isMute: !trainingModel.isMute)
+                    }) {
+                        Image(systemName: trainingModel.isMute ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                            .font(.title2) // Un peu plus petit pour la hiérarchie visuelle
+                            .padding()
+                            .frame(width: 60, height: 60)
+                            .background(Circle().fill(.gray.opacity(0.2)))
+                            .foregroundColor(trainingModel.isMute ? .red : .primary)
+                    }
+                
+                // Bouton Reset
                 Button(action: { trainingModel.reset() }) {
                     Image(systemName: "arrow.counterclockwise")
                         .font(.title)

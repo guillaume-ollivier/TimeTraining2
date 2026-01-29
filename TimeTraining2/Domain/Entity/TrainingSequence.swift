@@ -40,8 +40,8 @@ struct TrainingSequence {
         
         self.totalDuration = Float(stepsTotalDuration*totalIteration)
         self.progressRate = Float(newElapseDuration)/Float(self.totalDuration)
-        self.elapseTime = HMSTime(from: Float(newElapseDuration))
-        self.remainTime = HMSTime(from: Float(newRemainDuration))
+        self.elapseTime = HMSTime(from: newElapseDuration)
+        self.remainTime = HMSTime(from: newRemainDuration)
         self.steps = steps
         self.currentStepId = nil
 
@@ -90,9 +90,11 @@ struct TrainingSequence {
         }
         
         let newRemainDuration = totalDuration - newElapseDuration
+        let newRemainDurationInt = Int(ceil(newRemainDuration))
+        let newElapseDurationInt = Int(totalDuration) - newRemainDurationInt
         self.progressRate = newElapseDuration / Float(self.totalDuration)
-        self.elapseTime = HMSTime(from: Float(newElapseDuration))
-        self.remainTime = HMSTime(from: Float(newRemainDuration))
+        self.elapseTime = HMSTime(from: newElapseDurationInt)
+        self.remainTime = HMSTime(from: newRemainDurationInt)
         
         if(newStatus.duration == 0) {
             /// Etapes en cours
@@ -121,8 +123,8 @@ struct TrainingSequence {
             steps[index].reset()
         }
         self.progressRate = 0.0
-        self.elapseTime = HMSTime(from: 0.0)
-        self.remainTime = HMSTime(from: Float(self.totalDuration))
+        self.elapseTime = HMSTime(from: 0)
+        self.remainTime = HMSTime(from: Int(self.totalDuration))
         self.completedIteration = 0
     }
 }
