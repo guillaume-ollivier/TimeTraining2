@@ -46,6 +46,10 @@ class TrainingVM: ObservableObject {
         if(trainingSequence.sequenceCompleted) {
             reset()
         }
+        let status = self.trainingSequence.addDuration(initialStatus:
+                                                        TrainingStatus(duration: 0, event: .START_SEQUENCE))
+        self.soundBox.play(event: status.event)
+
         UIApplication.shared.isIdleTimerDisabled = true
         trainingTimer.start()
         timer=Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in

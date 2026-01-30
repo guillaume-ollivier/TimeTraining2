@@ -109,7 +109,7 @@ struct TrainingSequence {
                 }
                 /// Itérations suivantes
                 completedIteration += 1
-                return addDuration(initialStatus: TrainingStatus(duration: newStatus.duration, event: .END_SEQUENCE))
+                return addDuration(initialStatus: TrainingStatus(duration: newStatus.duration, event: .START_SEQUENCE))
             } else {
                 /// Exercice terminé
                 completedIteration = totalIteration

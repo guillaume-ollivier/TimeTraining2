@@ -50,13 +50,13 @@ struct SoundBox {
             if isVibration { impactMedium.impactOccurred() }
             if isSound { AudioServicesPlaySystemSound(1106) }
 
+        case .START_SEQUENCE:
+            if isVibration { notificationGenerator.notificationOccurred(.success) }
+            if isSound { AudioServicesPlaySystemSound(1013) }
+            
         case .END_EXERCISE:
             if isVibration { notificationGenerator.notificationOccurred(.success) }
             if isSound { AudioServicesPlaySystemSound(1022) }
-
-        case .END_SEQUENCE:
-            if isVibration { impactHeavy.impactOccurred() }
-            if isSound { AudioServicesPlaySystemSound(1322) }
 
         case .NONE:
             break
