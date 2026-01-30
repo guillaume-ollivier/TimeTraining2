@@ -40,13 +40,12 @@ struct TrainingSequence {
     
     init(exerciseSequence: ExerciseSequence, completedIteration: Int=0) {
         self.exercise = exerciseSequence
-        let steps = exerciseSequence.steps.map { exerciseStep in
+        self.steps = exerciseSequence.getSteps(iteration: 0).map { exerciseStep in
             TrainingStep(step:exerciseStep,
                          progressRate: 0)
         }
         let totalDuration = exerciseSequence.totalDuration
 
-        self.steps = steps        
         let completedIteration = max(0, min(completedIteration, exerciseSequence.totalIteration))
         self.completedIteration = completedIteration  
 
@@ -79,16 +78,14 @@ struct TrainingSequence {
         /// Décompte les étapes
         currentStepId = nil
         for(index) in steps.indices {
-            if((steps[index].enabledFirst && completedIteration==0) ||
-               (steps[index].enabledLast && completedIteration==totalIteration-1) ||
-               (completedIteration>0 && completedIteration<totalIteration-1)) {
-                let stepStatus = steps[index].addDuration(newStatus.duration)
-                newStatus = stepStatus.make(status: newStatus)
-                if ( newStatus.duration == 0  && currentStepId == nil) {
-                    currentStepId = steps[index].id
-                }
-                newElapseDuration += steps[index].elapseDuration
+            let stepStatus = steps[index].addDuration(newStatus.duration)
+            newStatus = stepStatus.make(status: newStatus)
+            if ( newStatus.duration == 0  && currentStepId == nil) {
+                currentStepId = steps[index].id
             }
+            
+            newElapseDuration += steps[index].elapseDuration
+            
         }
         if(currentStepId == nil) {
             currentStepId = steps.last?.id
@@ -108,12 +105,9 @@ struct TrainingSequence {
         } else {
             /// Etapes terminées
             if completedIteration + 1 < totalIteration {
-                /// Itérations en cours
-                for(index) in steps.indices {
-                    steps[index].reset()
-                }
                 /// Itérations suivantes
                 completedIteration += 1
+                resetSteps()
                 return addDuration(initialStatus: TrainingStatus(duration: newStatus.duration, event: .START_SEQUENCE))
             } else {
                 /// Exercice terminé
@@ -123,13 +117,17 @@ struct TrainingSequence {
         }
     }
 
-    mutating func reset() {
-        for(index) in steps.indices {
-            steps[index].reset()
+    mutating func resetSteps() {
+        self.steps = self.exercise.getSteps(iteration: completedIteration).map { exerciseStep in
+            TrainingStep(step:exerciseStep,
+                         progressRate: 0)
         }
+    }
+    mutating func reset() {
         self.progressRate = 0.0
         self.elapseTime = HMSTime(from: 0)
         self.remainTime = HMSTime(from: Int(self.totalDuration))
         self.completedIteration = 0
+        resetSteps()
     }
 }

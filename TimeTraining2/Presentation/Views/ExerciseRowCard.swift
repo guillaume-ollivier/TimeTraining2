@@ -74,7 +74,7 @@ struct ExerciseRowCard: View {
     @Previewable @State var exercice = ExerciseSequence(
         label: "ExerciseSequenceView",
         steps: [
-            ExerciseStep(title: "working", duration: 5)
+            ExerciseStep(id: UUID(),  title: "working", duration: 5)
         ],
         totalIteration: 2
     )

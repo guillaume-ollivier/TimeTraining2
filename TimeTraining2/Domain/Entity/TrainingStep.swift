@@ -8,7 +8,7 @@
 import Foundation
 
 struct TrainingStep {
-    let id:UUID = UUID()
+    let id:UUID
     var elapseTime: HMSTime
     var remainTime: HMSTime
     var progressRate: Float
@@ -40,6 +40,7 @@ struct TrainingStep {
         exerciseStep.enabledLast
     }
     init(step: ExerciseStep, progressRate: Float) {
+        self.id = step.id
         let progressRate = min(max(progressRate, 0), 1)
         let totalDuration = max(step.duration, 0)
         let elapseDuration = Int(ceil(totalDuration * progressRate))

@@ -8,7 +8,7 @@
 import Foundation
 
 struct ExerciseStep: Identifiable, Hashable, Codable {
-    let id:UUID 
+    let id:UUID
     var title:String
     var duration: Float
     var enabledFisrt: Bool = true
