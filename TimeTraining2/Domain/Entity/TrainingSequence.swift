@@ -12,12 +12,11 @@ struct TrainingSequence {
     var elapseTime: HMSTime
     var remainTime: HMSTime
     var progressRate: Float
-    var totalDuration: Float
-    var steps: [TrainingStep]
+    var exercise: ExerciseSequence
     var currentStepId:UUID?
     var completedIteration: Int
-    var totalIteration: Int
     var label: String
+    var steps: [TrainingStep]
 
     var elapseDuration: Float {
         return totalDuration * progressRate
@@ -31,37 +30,39 @@ struct TrainingSequence {
         return completedIteration >= totalIteration
     }
 
-    init(steps: [TrainingStep], completedIteration: Int=0, totalIteration: Int, label: String) {
-        let stepsTotalDuration = steps.reduce(0) { partialResult, step in
-            return partialResult + Int(step.totalDuration)
-        }
-        let newElapseDuration = stepsTotalDuration * completedIteration
-        let newRemainDuration = stepsTotalDuration * (totalIteration - completedIteration)
-        
-        self.totalDuration = Float(stepsTotalDuration*totalIteration)
-        self.progressRate = Float(newElapseDuration)/Float(self.totalDuration)
-        self.elapseTime = HMSTime(from: newElapseDuration)
-        self.remainTime = HMSTime(from: newRemainDuration)
-        self.steps = steps
-        self.currentStepId = nil
-
-        self.completedIteration = completedIteration
-        self.totalIteration = totalIteration
-
-        self.label = label
+    var totalDuration:Float {
+        self.exercise.totalDuration
     }
 
+    var totalIteration: Int {
+        self.exercise.totalIteration
+    }
+    
     init(exerciseSequence: ExerciseSequence, completedIteration: Int=0) {
+        self.exercise = exerciseSequence
         let steps = exerciseSequence.steps.map { exerciseStep in
             TrainingStep(step:exerciseStep,
                          progressRate: 0)
         }
-        self.init(steps: steps,
-                  completedIteration: completedIteration,
-                  totalIteration: exerciseSequence.totalIteration,
-                  label: exerciseSequence.label)
-    }
+        let totalDuration = exerciseSequence.totalDuration
 
+        self.steps = steps        
+        let completedIteration = max(0, min(completedIteration, exerciseSequence.totalIteration))
+        self.completedIteration = completedIteration  
+
+        let newElapseDuration = completedIteration==0 ? 0 : (0..<completedIteration).reduce(0.0) { partialResult, iteration in
+            return partialResult + exerciseSequence.getDuration(iteration: iteration)
+        }   
+        let newRemainDuration = totalDuration - newElapseDuration
+        self.progressRate = Float(newElapseDuration)/Float(totalDuration)
+
+        self.elapseTime = HMSTime(from: Int(newElapseDuration))
+        self.remainTime = HMSTime(from: Int(newRemainDuration))
+        self.currentStepId = nil
+        
+        self.label = exerciseSequence.label
+    }
+    
     mutating func addDuration(duration: Float) -> TrainingStatus {
         return addDuration(initialStatus: TrainingStatus(duration: duration, event: .NONE))
     }
@@ -73,17 +74,21 @@ struct TrainingSequence {
 
         /// Initialisation avec les précédentes itérations
         var newStatus = initialStatus
-        var newElapseDuration:Float = totalDuration/Float(totalIteration) * Float(completedIteration)
+        var newElapseDuration:Float = (0..<completedIteration).reduce(0.0) { $0 + exercise.getDuration(iteration: $1) }
 
         /// Décompte les étapes
         currentStepId = nil
         for(index) in steps.indices {
-            let stepStatus = steps[index].addDuration(newStatus.duration)
-            newStatus = stepStatus.make(status: newStatus)
-            if ( newStatus.duration == 0  && currentStepId == nil) {
-                currentStepId = steps[index].id
+            if((steps[index].enabledFirst && completedIteration==0) ||
+               (steps[index].enabledLast && completedIteration==totalIteration-1) ||
+               (completedIteration>0 && completedIteration<totalIteration-1)) {
+                let stepStatus = steps[index].addDuration(newStatus.duration)
+                newStatus = stepStatus.make(status: newStatus)
+                if ( newStatus.duration == 0  && currentStepId == nil) {
+                    currentStepId = steps[index].id
+                }
+                newElapseDuration += steps[index].elapseDuration
             }
-            newElapseDuration += steps[index].elapseDuration
         }
         if(currentStepId == nil) {
             currentStepId = steps.last?.id

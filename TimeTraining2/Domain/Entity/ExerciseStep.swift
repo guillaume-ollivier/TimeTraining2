@@ -11,6 +11,8 @@ struct ExerciseStep: Identifiable, Hashable, Codable {
     let id:UUID 
     var title:String
     var duration: Float
+    var enabledFisrt: Bool = true
+    var enabledLast: Bool = true
 
     init(
         id: UUID = UUID(),
