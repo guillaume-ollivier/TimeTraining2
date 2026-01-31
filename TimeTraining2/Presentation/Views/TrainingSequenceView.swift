@@ -22,13 +22,16 @@ struct TrainingSequenceView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
-                
+                IterationProgressView(iterations: sequence.exercise.getDurationsList(), currentIndex: sequence.completedIteration)
+                    .frame(height: 36)
+                /*
                 TimeProgressView(
                     elapseTime: sequence.elapseTime,
                     remainTime: sequence.remainTime,
                     progressRate: sequence.progressRate
                 )
                 .frame(height: 70)
+                 */
             }
             .padding()
             .background(Color(UIColor.systemBackground))
