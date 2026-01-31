@@ -49,11 +49,11 @@ struct ExerciseSequence: Identifiable, Hashable, Codable {
         let iteration = max(0, min(iteration, totalIteration - 1))
 
         for step in steps {
-            if iteration == 0 && step.enabledFisrt {
+            if iteration == 0 && step.enabledFirst {
                 selectedSteps.append(step)
             } else if iteration == totalIteration - 1 && step.enabledLast {
                 selectedSteps.append(step)
-            } else if iteration > 0 && iteration < totalIteration - 1 {
+            } else if iteration > 0 && iteration < totalIteration - 1 && step.enabledMiddle{
                 selectedSteps.append(step)
             }
         }
@@ -62,20 +62,6 @@ struct ExerciseSequence: Identifiable, Hashable, Codable {
 
     func getDuration(iteration: Int) -> Float {
         getSteps(iteration: iteration).reduce(0.0) { $0 + $1.duration }
-    }
-
-    func getDuration(position: SequencePosition) -> Float {
-        var duration: Float = 0
-        for step in steps {
-            if position.isFirst && step.enabledFisrt {
-                duration += step.duration
-            } else if position.isLast && step.enabledLast {
-                duration += step.duration
-            } else if !position.isFirst && !position.isLast {
-                duration += step.duration
-            }
-        }
-        return duration
     }
     
 }

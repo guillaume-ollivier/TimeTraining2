@@ -53,9 +53,11 @@ struct ExerciseSequenceView: View {
             }) {
                 List {
                     ForEach($sequence.steps) { $step in
-                        ExerciseStepView(title: $step.title,
+                        ExerciseStepView(nbIteration: sequence.totalIteration,                title: $step.title,
+                                
                                          duration: $step.durationSeconds,
-                                         enabledFirst: $step.enabledFisrt,
+                                         enabledFirst: $step.enabledFirst,
+                                         enabledMiddle: $step.enabledMiddle,
                                          enabledLast: $step.enabledLast)
                     }
                     .onDelete(perform: deleteStep)

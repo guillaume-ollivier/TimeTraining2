@@ -33,7 +33,7 @@ struct TrainingStep {
     }
     
     var enabledFirst: Bool {
-        exerciseStep.enabledFisrt
+        exerciseStep.enabledFirst
     }
     
     var enabledLast: Bool {
