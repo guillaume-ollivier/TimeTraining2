@@ -60,14 +60,19 @@ struct ExerciseRowCard: View {
     // On extrait les labels pour éviter la répétition de code
     @ViewBuilder
     private var infoLabels: some View {
-        Text("\(Image(systemName: "list.bullet")) \(exercise.steps.count) étapes   \(Image(systemName: "arrow.clockwise")) \(exercise.totalIteration) fois   \(Image(systemName: "clock")) \(HMSTime(from: Int(exercise.totalDuration)).toString())")
+            // Préparation des valeurs textuelles
+        let stepCount = "\(exercise.steps.count) étape\(exercise.steps.count>=2 ? "s" : "")"
+            let iterCount = "\(exercise.totalIteration) fois"
+            let duration = HMSTime(from: Int(exercise.totalDuration)).toString()
+            
+            // Construction d'un SEUL Text via interpolation.
+            // \u{00A0} = Espace insécable (colle l'icône au texte)
+            // Les espaces normaux entre les groupes permettront le retour à la ligne.
+            Text("\(Image(systemName: "list.bullet"))\u{00A0}\(stepCount)   \(Image(systemName: "arrow.clockwise"))\u{00A0}\(iterCount)   \(Image(systemName: "clock"))\u{00A0}\(duration)")
                 .font(.caption)
                 .foregroundColor(.secondary)
-                .fixedSize(horizontal: false, vertical: true) // Empêche le tronquage ("...")
                 .multilineTextAlignment(.leading)
-                .lineLimit(nil) // Autorise autant de lignes que nécessaire
-    }
-
+        }
 }
 
 #Preview {
