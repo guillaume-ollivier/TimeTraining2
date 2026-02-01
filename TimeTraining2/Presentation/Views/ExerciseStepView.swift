@@ -30,7 +30,7 @@ struct ExerciseStepView: View {
                     .labelsHidden() // Si ton picker supporte l'étiquette masquée
             }
             HStack {
-                Image(systemName: "play.circle")
+                Image(systemName: "arrow.clockwise")
                     .font(.subheadline)
                     .foregroundStyle(.blue)
                 TimelineSelector(nbIteration: nbIteration,

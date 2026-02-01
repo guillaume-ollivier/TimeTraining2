@@ -31,7 +31,7 @@ struct TimeProgressView: View {
                     Text("\(elapseTime.minute):\(elapseTime.second)")
                         .font(.title).bold()
                     Spacer()
-                    Text("-\(remainTime.minute):\(remainTime.second)")
+                    Text("\(remainTime.minute):\(remainTime.second)")
                         .font(.title).bold()
                 }
                 .font(.system(.subheadline, design: .monospaced).bold())

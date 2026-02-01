@@ -10,38 +10,59 @@ struct IterationProgressView: View {
     }
 
     var body: some View {
-        GeometryReader { geometry in
-            HStack(spacing: 3) { // Un léger espacement pour bien distinguer les segments
-                ForEach(0..<iterations.count, id: \.self) { index in
-                    let segmentWidth = CGFloat(iterations[index] / totalDuration) * geometry.size.width
+            GeometryReader { geometry in
+                let height = geometry.size.height
+                let iconSize = height * 0.8
+                let spacing: CGFloat = 8
+                
+                HStack(spacing: spacing) {
+                    // Icône proportionnelle et rouge
+                    Image(systemName: "arrow.clockwise")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: iconSize, height: iconSize)
+                        .foregroundColor(.red)
                     
-                    ZStack {
-                        // Fond commun pour tous les segments
-                        Rectangle()
-                            .fill(Color.secondary.opacity(0.2))
-                        
-                        // Segment actif : plein à 100%
-                        if index == currentIndex || currentIndex>=iterations.count{
-                            Rectangle()
-                                .fill(LinearGradient(colors: [.orange, .red], startPoint: .leading, endPoint: .trailing))
-                                // Une transition fluide lors du changement d'index
-                                .transition(.opacity)
+                    // Barre de progression avec numéros
+                    HStack(spacing: 3) {
+                        ForEach(0..<iterations.count, id: \.self) { index in
+                            let isCompletedOrCurrent = index == currentIndex || currentIndex>=iterations.count
+                            let segmentWidth = CGFloat(iterations[index] / totalDuration) * (geometry.size.width - iconSize - spacing)
+                            
+                            ZStack {
+                                // Fond du segment
+                                Rectangle()
+                                    .fill(Color.secondary.opacity(0.2))
+                                
+                                // Remplissage actif
+                                if isCompletedOrCurrent {
+                                    Rectangle()
+                                        .fill(LinearGradient(colors: [.orange, .red], startPoint: .leading, endPoint: .trailing))
+                                        .transition(.opacity)
+                                }
+                                
+                                // Numéro de l'itération
+                                Text("\(index + 1)")
+                                    .font(.system(size: height * 0.5, weight: .bold, design: .rounded))
+                                    .foregroundColor(isCompletedOrCurrent ? .white : .secondary)
+                                    .minimumScaleFactor(0.5) // Évite que le texte disparaisse si le segment est trop petit
+                                    .lineLimit(1)
+                            }
+                            .frame(width: max(segmentWidth, 0))
                         }
                     }
-                    .frame(width: segmentWidth)
+                    .clipShape(Capsule())
                 }
             }
-            .clipShape(Capsule())
             .animation(.easeInOut, value: currentIndex)
         }
     }
-}
 
 #Preview {
     VStack(spacing: 30) {
         // Exemple avec le deuxième segment actif (le plus long)
-        IterationProgressView(iterations: [15, 45, 20], currentIndex: 3)
-            .frame(height: 24)
+        IterationProgressView(iterations: [15, 45, 20], currentIndex: 0)
+            .frame(height: 60)
             .padding()
         
         Text("Segment 2 actif (45s sur 80s total)")

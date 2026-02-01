@@ -17,10 +17,6 @@ struct TrainingSequenceView: View {
                 VStack(spacing: 4) {
                     Text(sequence.label)
                         .font(.title).bold()
-                    
-                    Text("Cycle \(sequence.completedIteration) / \(sequence.totalIteration)")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
                 }
                 IterationProgressView(iterations: sequence.exercise.getDurationsList(), currentIndex: sequence.completedIteration)
                     .frame(height: 36)
