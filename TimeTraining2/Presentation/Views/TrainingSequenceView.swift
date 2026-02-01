@@ -20,6 +20,8 @@ struct TrainingSequenceView: View {
                 }
                 IterationProgressView(iterations: sequence.exercise.getDurationsList(), currentIndex: sequence.completedIteration)
                     .frame(height: 36)
+                ChronoView(elapseTime: sequence.elapseTime)
+                    .frame(height: 36)
                 /*
                 TimeProgressView(
                     elapseTime: sequence.elapseTime,
